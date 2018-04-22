@@ -23,5 +23,28 @@ const AppointmentController = {
       phone: requestBody.phone,
       slots: newslot._id
     });
+
+    const nexmo = new Nexmo({
+      apiKey: 'b7aff4ef',
+      apiSecret: 'FJnoAS03PxVKt41Q',
+    });
+
+    let msg =
+      requestBody.name + " " + "this message is to confirm your appointment at" + " " + requestBody.appointment;
+
+    newappointment.save((err,saved) => {
+      Appointment.find({_id: saved._id}).populate("slots").exec((err,appointment)=> res.json(appointment));
+
+      const from = VIRTUAL_NUMBER;
+      const to = RECIPIENT_NUMBER;
+
+      nexmo.message.sendSms(from, to, msg, (err, responseData)=>{
+        if (err) {
+          console.log(err);
+        } else {
+          console.dir(responseData);
+        }
+      });
+    });
   }
-}
+};
